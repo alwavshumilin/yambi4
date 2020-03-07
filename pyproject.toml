@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "yambi4"
+version = "0.1.0"
+description = "Yet another malware or is it not?"
+authors = ["VShumilin <vshumilin@naumen.ru>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+aiohttp = "^3.6.2"
+aiofiles = "^0.4.0"
+aiologger = "^0.5.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5"
+pytest-aiohttp = "^0.3.0"
+
+[build-system]
+requires = ["poetry==1.0.0"]
+build-backend = "poetry.masonry.api"
