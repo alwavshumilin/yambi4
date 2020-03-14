@@ -3,7 +3,7 @@ import logging
 import pathlib
 from asyncio import AbstractEventLoop
 from functools import partial
-from typing import Optional, Tuple, Awaitable, Callable, Union
+from typing import Optional, Tuple, Awaitable, Callable, Union, cast
 
 from aiohttp.abc import Application
 from watchgod import awatch, DefaultDirWatcher, Change
@@ -33,7 +33,7 @@ async def printer(changes: Tuple[Change, str]) -> None:
 
 
 def setup_for_app(
-        event_handler: Optional[EventHandler] = printer,
+        event_handler: EventHandler = printer,
         *,
         loop: Optional[AbstractEventLoop] = None,
 ) -> Callable[[Application], Awaitable[None]]:
@@ -44,6 +44,8 @@ def setup_for_app(
     async def run_with_app(application: Application) -> None:
         """ aio http app binder for file watcher """
         application['event_handler'] = event_handler.__qualname__
-        loop.create_task(observe(event_handler, path=PATH))
+        cast(AbstractEventLoop, loop).create_task(
+            observe(event_handler, path=PATH)
+        )
 
     return run_with_app
