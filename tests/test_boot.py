@@ -1,14 +1,10 @@
-import pytest
-
-from engine.servlet import boot
-
-
-@pytest.fixture
-async def app_client(aiohttp_server, aiohttp_client):
-    return await aiohttp_client(await boot())
-
-
-async def test_boot_app(app_client):
-    """ Checks: App is ready to be loaded """
+async def test_boot_app_web(app_client):
+    """ Checks: App is ready to serve REST """
     resp = await app_client.get('/')
-    assert resp is not None
+    assert resp.status == 200
+
+
+async def test_boot_app_file_poller(app_client):
+    """ Checks: App is ready to seek file changes """
+    actual = app_client.app['event_handler']
+    assert actual == 'printer'  # TODO: Fragile test detected
