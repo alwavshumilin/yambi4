@@ -1,14 +1,14 @@
 import asyncio
 import logging
 import pathlib
-from asyncio import AbstractEventLoop
+from asyncio import AbstractEventLoop, Task
 from functools import partial
 from typing import Optional, Tuple, Awaitable, Callable, Union, cast
 
 from aiohttp.abc import Application
 from watchgod import awatch, DefaultDirWatcher, Change
 
-logging.basicConfig(level=10)
+logging.basicConfig(level=10)  # TODO: Aio logging
 
 
 PATH = pathlib.Path(__file__).parent.parent.joinpath('test')
@@ -32,7 +32,7 @@ async def printer(changes: Tuple[Change, str]) -> None:
     logging.info(changes)
 
 
-def setup_for_app(
+def setup(
         event_handler: EventHandler = printer,
         *,
         loop: Optional[AbstractEventLoop] = None,
@@ -41,11 +41,16 @@ def setup_for_app(
     if loop is None:
         loop = asyncio.get_event_loop()
 
-    async def run_with_app(application: Application) -> None:
+    async def run_watcher(application: Application) -> None:
         """ aio http app binder for file watcher """
-        application['event_handler'] = event_handler.__qualname__
-        cast(AbstractEventLoop, loop).create_task(
-            observe(event_handler, path=PATH)
-        )
+        application['file_watcher'] = cast(
+            AbstractEventLoop, loop
+        ).create_task(observe(event_handler, path=PATH))
 
-    return run_with_app
+    return run_watcher
+
+
+async def shutdown_watcher(application: Application) -> None:
+    """ Graceful shutdown for file watcher w/ aiohttp server """
+    watcher: Task = application['file_watcher']
+    watcher.cancel()
