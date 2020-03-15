@@ -1,8 +1,26 @@
+import pathlib
+from typing import Mapping, Any
+
+import toml
 from aiohttp import web
 from aiohttp.abc import Application
 
 from .routes.client import root
 from .watcher import setup, shutdown_watcher
+
+
+CFG_PATH = (
+    pathlib.Path(__file__)
+    .parent
+    .joinpath('configuration')
+    .joinpath('config.toml')
+)
+
+
+def read_config() -> Mapping[str, Any]:
+    """ Read config from fs """
+    with open(CFG_PATH) as reader:
+        return toml.decoder.load(reader)
 
 
 async def boot() -> Application:
@@ -11,7 +29,8 @@ async def boot() -> Application:
     app.add_routes([
         web.get('/', root)
     ])
-    watcher_fabric = setup()
+    config = read_config()
+    watcher_fabric = setup(path=config['path'])
     app.on_startup.append(watcher_fabric)
     app.on_cleanup.append(shutdown_watcher)
     return app

@@ -11,7 +11,6 @@ from watchgod import awatch, DefaultDirWatcher, Change
 logging.basicConfig(level=10)  # TODO: Aio logging
 
 
-PATH = pathlib.Path(__file__).parent.parent.joinpath('test')
 EventHandler = Callable[[Tuple[Change, str]], Awaitable[None]]
 
 
@@ -35,6 +34,7 @@ async def printer(changes: Tuple[Change, str]) -> None:
 def setup(
         event_handler: EventHandler = printer,
         *,
+        path: Union[pathlib.Path, str],
         loop: Optional[AbstractEventLoop] = None,
 ) -> Callable[[Application], Awaitable[None]]:
     """ Setup file watcher for aio http web application """
@@ -45,7 +45,7 @@ def setup(
         """ aio http app binder for file watcher """
         application['file_watcher'] = cast(
             AbstractEventLoop, loop
-        ).create_task(observe(event_handler, path=PATH))
+        ).create_task(observe(event_handler, path=path))
 
     return run_watcher
 
