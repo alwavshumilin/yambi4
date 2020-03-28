@@ -34,7 +34,7 @@ async def printer(changes: Tuple[Change, str]) -> None:
 def setup(
         event_handler: EventHandler = printer,
         *,
-        path: Union[pathlib.Path, str],
+        paths: Union[pathlib.Path, str],
         loop: Optional[AbstractEventLoop] = None,
 ) -> Callable[[Application], Awaitable[None]]:
     """ Setup file watcher for aio http web application """
@@ -43,9 +43,10 @@ def setup(
 
     async def run_watcher(application: Application) -> None:
         """ aio http app binder for file watcher """
-        application['file_watcher'] = cast(
-            AbstractEventLoop, loop
-        ).create_task(observe(event_handler, path=path))
+        for path in paths:
+            application['file_watcher'] = cast(
+                AbstractEventLoop, loop
+            ).create_task(observe(event_handler, path=path))
 
     return run_watcher
 

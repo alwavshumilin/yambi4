@@ -30,7 +30,7 @@ async def boot() -> Application:
         web.get('/', root)
     ])
     config = read_config()
-    watcher_fabric = setup(path=config['path'])
+    watcher_fabric = setup(paths=config['paths'])
     app.on_startup.append(watcher_fabric)
     app.on_cleanup.append(shutdown_watcher)
     return app
