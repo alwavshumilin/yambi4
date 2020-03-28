@@ -16,6 +16,8 @@ CFG_PATH = (
     .joinpath('config.toml')
 )
 
+STATIC_PATH = pathlib.Path(__file__).parent.parent.joinpath('static')
+
 
 def read_config() -> Mapping[str, Any]:
     """ Read config from fs """
@@ -27,7 +29,8 @@ async def boot() -> Application:
     """ Application bootstrap entry point """
     app = web.Application()
     app.add_routes([
-        web.get('/', root)
+        web.get('/', root),
+        web.static('/static', STATIC_PATH, follow_symlinks=True)
     ])
     config = read_config()
     watcher_fabric = setup(paths=config['paths'])
