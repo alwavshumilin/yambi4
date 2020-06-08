@@ -33,7 +33,7 @@ async def boot() -> Application:
         web.static('/static', STATIC_PATH, follow_symlinks=True)
     ])
     config = read_config()
-    watcher_fabric = setup(paths=config['paths'])
+    watcher_fabric = setup(paths=config['paths'], loop=app._loop)
     app.on_startup.append(watcher_fabric)
     app.on_cleanup.append(shutdown_watcher)
     return app

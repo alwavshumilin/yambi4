@@ -1,3 +1,4 @@
+from asyncio import AbstractEventLoop
 from enum import Enum
 from pathlib import Path
 from typing import Union, Generator
@@ -16,11 +17,12 @@ class ReadMode(Enum):
 
 async def inspect(
         path: PathLike,
+        loop: AbstractEventLoop,
         mode: ReadMode = ReadMode.STRING,
-        chunk_size: int = 1024
+        chunk_size: int = 1024,
 ) -> Generator[None, FileContent, None]:
     """ Get the file content in lazy fashion """
-    async with aiopen(path, mode=mode.value) as reader:
+    async with aiopen(path, mode=mode.value, loop=loop) as reader:
         while True:
             content = await reader.read(chunk_size)
             if not content:

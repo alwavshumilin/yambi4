@@ -30,7 +30,7 @@ def make_file(
     return _content_pass
 
 
-async def test_file_inspection(make_file):
+async def test_file_inspection(make_file, loop):
     """ Checks: Basic test file inspection """
     content = """
     RAMADA
@@ -40,30 +40,32 @@ async def test_file_inspection(make_file):
     """
     make_file(content)
     buffer = []
-    async for chunk in inspect(TEST_DIR / "test_file_read.txt"):
+    async for chunk in inspect(TEST_DIR / "test_file_read.txt", loop):
         buffer.append(chunk)
     actual = "".join(buffer)
     assert actual == content
 
 
-async def test_file_inspection_chunk_size(make_file):
+async def test_file_inspection_chunk_size(make_file, loop):
     """ Checks: It is possible to regulate chunk size """
     content = "x" * 3
     make_file(content)
     buffer = []
-    async for chunk in inspect(TEST_DIR / "test_file_read.txt", chunk_size=2):
+    async for chunk in inspect(
+            TEST_DIR / "test_file_read.txt", loop, chunk_size=2
+    ):
         buffer.append(chunk)
     actual = len(buffer)
     assert actual == 2
 
 
-async def test_file_inspection_bytes(make_file):
+async def test_file_inspection_bytes(make_file, loop):
     """ Checks: It is possible to get bytes instead of string """
     content = b'0123456789'
     make_file(content, "wb")
     buffer = []
     async for chunk in inspect(
-            TEST_DIR / "test_file_read.txt", mode=ReadMode.BYTES
+            TEST_DIR / "test_file_read.txt", loop, mode=ReadMode.BYTES
     ):
         buffer.append(chunk)
     actual = buffer[0]
