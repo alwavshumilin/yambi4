@@ -1,0 +1,8 @@
+[package]
+name = "phpmailer-rs"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust-first, close-to-origin rewrite scaffold of PHPMailer"
+license = "LGPL-2.1"
+
+[dependencies]
